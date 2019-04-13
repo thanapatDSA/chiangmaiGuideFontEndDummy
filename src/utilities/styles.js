@@ -31,5 +31,19 @@ export default styles = StyleSheet.create({
   },
   card: {
     marginVertical: 5
-  }
+  },
+  bodyMap: {
+    flex: 9.5,
+  },
+  mapContainer: {
+    ...StyleSheet.absoluteFillObject,
+    // flex: 11.5,
+    height: '100%',
+    width: '100%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
 })

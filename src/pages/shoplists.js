@@ -48,7 +48,9 @@ class shoplists extends Component {
                 <Card.Content style={styles.card}>
                   <Title>{item.lang.th.name}</Title>
                   <Paragraph>{item.category}</Paragraph>
-                  <Paragraph>{item.lang.th.description}</Paragraph>
+                  <Paragraph 
+                  numberOfLines={2}
+                  >{item.lang.th.description}</Paragraph>
                 </Card.Content>
               </Card>
             }
