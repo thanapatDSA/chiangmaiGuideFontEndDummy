@@ -31,7 +31,7 @@ class shoplists extends Component {
 
   goToShop = (item) => {
     const { push } = this.props
-    push('/shop', { shop: item })
+    push('/shop', { shop: item, index: 0 })
   }
   render() {
     return (
@@ -48,8 +48,8 @@ class shoplists extends Component {
                 <Card.Content style={styles.card}>
                   <Title>{item.lang.th.name}</Title>
                   <Paragraph>{item.category}</Paragraph>
-                  <Paragraph 
-                  numberOfLines={2}
+                  <Paragraph
+                    numberOfLines={2}
                   >{item.lang.th.description}</Paragraph>
                 </Card.Content>
               </Card>

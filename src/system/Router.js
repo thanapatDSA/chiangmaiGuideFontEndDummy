@@ -11,6 +11,9 @@ import ShopPage from '../pages/shop'
 import MapPage from '../pages/map'
 import ProfilePage from '../pages/profile'
 import MenuPage from '../components/menu'
+import RegisterPage from '../pages/register'
+import EditProfilePage from '../pages/editProfile'
+import ChangeProfilePage from '../pages/changePassword'
 
 export default class Router extends React.Component {
   render() {
@@ -25,7 +28,10 @@ export default class Router extends React.Component {
               <Route exact path="/map" component={MapPage} />
               <Route exact path="/profile" component={ProfilePage} />
               <Route exact path="/menu" component={MenuPage} />
-              <Redirect to='/menu' />
+              <Route exact path="/register" component={RegisterPage} />
+              <Route exact path="/editProfile" component={EditProfilePage} />
+              <Route exact path="/changePassword" component={ChangeProfilePage} />
+              <Redirect to='/editProfile' />
             </Switch>
           </ConnectedRouter>
         </PaperProvider>

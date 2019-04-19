@@ -46,4 +46,18 @@ export default styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
+  surface: {
+    marginVertical: 5
+  },
+  bodyRegister: {
+    flex: 8.5,
+    width: '90%',
+    textAlign: 'center',
+    margin: 20,
+  },
+  bottom: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
 })
