@@ -11,7 +11,6 @@ export const Header = ({ textHeader,colorBar }) => {
       <Appbar.Header style={{backgroundColor: colorBar}}>
         <Appbar.Content
           title={textHeader}
-          // subtitle="Subtitle"
         />
       </Appbar.Header>
     </View>

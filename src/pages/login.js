@@ -16,14 +16,17 @@ class login extends Component {
   loginPrass = () => {
     this.props.history.push('/menu', { index: 0 })
   }
+  goToReg = () => {
+    this.props.history.push('/register')
+  }
   render() {
     return (
       <View style={styles.container}>
         <Header textHeader='Login' />
         <View style={styles.body}>
-        <View style={styles.avatar}>
-        <Avatar.Image style={styles.avatar} size={250} source={{ uri: 'https://puu.sh/CQUJ1/ac37c354a6.png' }} />
-        </View>
+          <View style={styles.avatar}>
+            <Avatar.Image style={styles.avatar} size={250} source={{ uri: 'https://puu.sh/CQUJ1/ac37c354a6.png' }} />
+          </View>
           <TextInput
             label="Email"
             value={this.state.email}
@@ -51,9 +54,11 @@ class login extends Component {
             Login
           </Button>
           <Button style={styles.button} mode="contained" onPress={() => console.log('Pressed')}>
-          <Icon name="facebook-square" size={15} solid/>  Login With Facebook
+            <Icon name="facebook-square" size={15} solid />  Login With Facebook
           </Button>
-          
+          <Button style={styles.button} mode="contained" onPress={() => this.goToReg()}>
+            Register
+          </Button>
         </View>
       </View>
     )
@@ -68,4 +73,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(null,mapDispatchToProps)(login)
+export default connect(null, mapDispatchToProps)(login)

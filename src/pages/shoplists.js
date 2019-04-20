@@ -9,29 +9,51 @@ import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
 
 class shoplists extends Component {
   state = {
-    shoplists: []
+    shoplists: [],
+    offset: 0,
+    limit: 20,
+    Refresh: false
   }
 
   UNSAFE_componentWillMount() {
+    this.loadShoplist()
+  }
+  loadShoplist = () => {
     axios.get('https://chiangmai.thaimarket.guide/shop'
-      , { params: { offset: 0, limit: 20 } }
+      , { params: { offset: this.state.offset, limit: this.state.limit } }
     )
       .then(response => {
-        this.setState({ shoplists: response.data.data })
+        this.setState({ shoplists: [...this.state.shoplists, ...response.data.data] })
         console.log('====================================');
         console.log("Shop DATA:", this.state.shoplists);
         console.log('====================================');
+        this.setState({ Refresh: false })
       })
       .catch(err => {
         console.log('====================================');
         console.log("shop err:", err);
         console.log('====================================');
+        this.setState({ Refresh: false })
       })
+  }
+
+  loadShoplistMore = () => {
+    if (this.state.offset === 100) {
+      this.setState({ Refresh: false })
+    } else {
+      this.setState({
+        offset: this.state.offset + this.state.limit,
+        Refresh: true
+      }, () => {
+        this.loadShoplist()
+      })
+    }
+
   }
 
   goToShop = (item) => {
     const { push } = this.props
-    push('/shop', { shop: item })
+    push('/shop', { shop: item, index: 0 })
   }
   render() {
     return (
@@ -48,12 +70,16 @@ class shoplists extends Component {
                 <Card.Content style={styles.card}>
                   <Title>{item.lang.th.name}</Title>
                   <Paragraph>{item.category}</Paragraph>
-                  <Paragraph 
-                  numberOfLines={2}
+                  <Paragraph
+                    numberOfLines={2}
                   >{item.lang.th.description}</Paragraph>
                 </Card.Content>
               </Card>
             }
+            refreshing={this.state.Refresh}
+            onRefresh={this.state.Refresh}
+            onEndReached={this.loadShoplistMore}
+            onEndThreshold={0}
           />
         </View>
       </View>
