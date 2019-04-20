@@ -43,6 +43,13 @@ class profile extends Component {
                     onPress={() => { this.props.push('/editProfile') }}
                   />
                   <Drawer.Item
+<<<<<<< HEAD
+=======
+                    label="Change Password"
+                    onPress={() => { this.props.push('/changePassword') }}
+                  />
+                  <Drawer.Item
+>>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
                     label="Logout"
                     onPress={() => { this.props.push('/login') }}
                   />

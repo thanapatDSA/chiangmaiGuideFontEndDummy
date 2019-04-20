@@ -1,5 +1,9 @@
 import React, { Component } from 'react'
+<<<<<<< HEAD
 import { Image, FlatList, Text, View, Alert, ScrollView, Modal } from 'react-native';
+=======
+import { Image, FlatList, Text, View, Alert, ScrollView } from 'react-native';
+>>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
 import styles from '../utilities/styles'
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
@@ -16,8 +20,11 @@ class shop extends Component {
     shopData: [],
     selectedStar: 0,
     text: '',
+<<<<<<< HEAD
     isShowMap: false,
     location: {},
+=======
+>>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
     user: {
       username: 'ABC'
     },
@@ -40,12 +47,16 @@ class shop extends Component {
     const rateTotal = this.state.comments.reduce((prev, rate) => { return prev + rate.rate }, 0)
     this.setState({ rateing: rateTotal / this.state.comments.length })
     console.log("rate total:", rateTotal);
+<<<<<<< HEAD
     this.setState({
       location: {
         latitude: parseFloat(this.props.location.state.shop.location.latitude),
         longitude: parseFloat(this.props.location.state.shop.location.longitude)
       }
     })
+=======
+
+>>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
 
     console.log('====================================');
     console.log("Shop props:", this.props.location.state.shop);
@@ -67,7 +78,11 @@ class shop extends Component {
       })
   }
 
+<<<<<<< HEAD
   componentDisMount() {
+=======
+  componentDisMount(){
+>>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
     const rateTotal = this.state.comments.reduce((prev, rate) => { return prev + rate.rate }, 0)
     this.setState({ rateing: rateTotal / this.state.comments.length })
   }
@@ -250,7 +265,11 @@ class shop extends Component {
                   mode="contained"
                   onPress={() => {
                     console.log("Press");
+<<<<<<< HEAD
 
+=======
+                    
+>>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
                     this.onSendComment(this.state.user.username, this.state.text, this.state.selectedStar)
                   }}>
                   SEND

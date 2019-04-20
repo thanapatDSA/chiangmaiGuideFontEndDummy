@@ -14,7 +14,11 @@ class map extends Component {
   }
   UNSAFE_componentWillMount() {
     axios.get('https://chiangmai.thaimarket.guide/shop'
+<<<<<<< HEAD
       , { params: { offset: 0, limit: 100 } }
+=======
+      , { params: { offset: 0, limit: 20 } }
+>>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
     )
       .then(response => {
         this.setState({ shoplists: response.data.data })
