@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Image, FlatList, Text, View, Alert, TextInput, TouchableOpacity } from 'react-native';
+import { Image, FlatList, Text, View, Alert, DrawerLayoutAndroid, TouchableOpacity } from 'react-native';
 import styles from '../utilities/styles'
 import { Header } from '../components/header'
 import { connect } from 'react-redux'
@@ -36,6 +36,13 @@ class shoplists extends Component {
         this.setState({ Refresh: false })
       })
   }
+  navigationView = (
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <Text style={{ margin: 10, fontSize: 15, textAlign: 'left' }}>I'm in the Drawer!</Text>
+    </View>
+  )
+
+
 
   loadShoplistMore = () => {
     if (this.state.offset === 100) {
@@ -58,30 +65,36 @@ class shoplists extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Header textHeader='Shoplists' colorBar='#3F51B5' />
-        <View style={styles.body}>
-          <FlatList
-            data={this.state.shoplists}
-            renderItem={({ item }) =>
-              <Card
-                style={styles.avatar}
-                onPress={() => { this.goToShop(item) }}>
-                <Card.Cover source={{ uri: item.image }} />
-                <Card.Content style={styles.card}>
-                  <Title>{item.lang.th.name}</Title>
-                  <Paragraph>{item.category}</Paragraph>
-                  <Paragraph
-                    numberOfLines={2}
-                  >{item.lang.th.description}</Paragraph>
-                </Card.Content>
-              </Card>
-            }
-            refreshing={this.state.Refresh}
-            onRefresh={this.state.Refresh}
-            onEndReached={this.loadShoplistMore}
-            onEndThreshold={0}
-          />
-        </View>
+        <DrawerLayoutAndroid
+          drawerWidth={200}
+          drawerPosition={DrawerLayoutAndroid.positions.Right}
+          renderNavigationView={() => this.navigationView}>
+          <Header textHeader='Shoplists' colorBar='#3F51B5' />
+          <View style={styles.body}>
+            <FlatList
+              data={this.state.shoplists}
+              renderItem={({ item }) =>
+                <Card
+                  style={styles.avatar}
+                  onPress={() => { this.goToShop(item) }}>
+                  <Card.Cover source={{ uri: item.image }} />
+                  <Card.Content style={styles.card}>
+                    <Title>{item.lang.th.name}</Title>
+                    <Paragraph>{item.category}</Paragraph>
+                    <Paragraph
+                      numberOfLines={2}
+                    >{item.lang.th.description}</Paragraph>
+                  </Card.Content>
+                </Card>
+              }
+              refreshing={this.state.Refresh}
+              onRefresh={this.state.Refresh}
+              onEndReached={this.loadShoplistMore}
+              onEndThreshold={0}
+            />
+          </View>
+
+        </DrawerLayoutAndroid>
       </View>
     )
   }

@@ -1,13 +1,9 @@
 import React, { Component } from 'react'
-<<<<<<< HEAD
 import { Image, FlatList, Text, View, Alert, ScrollView, Modal } from 'react-native';
-=======
-import { Image, FlatList, Text, View, Alert, ScrollView } from 'react-native';
->>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
 import styles from '../utilities/styles'
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
-import { Avatar, Button, Card, Title, Paragraph, Appbar, TextInput, HelperText } from 'react-native-paper';
+import { Avatar, Button, Card, Drawer, Paragraph, Appbar, TextInput, HelperText, Dialog, Portal } from 'react-native-paper';
 import StarRating from 'react-native-star-rating';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome5'
@@ -16,15 +12,18 @@ import MapView, { Marker } from 'react-native-maps'
 
 class shop extends Component {
   state = {
+    isShowYes: false,
+    isLogin: false,
+    refreshing: false,
+    TripNameSelectId: '',
+    TripNameSelect: '',
+    visibleDialog: false,
     shopProduct: [],
     shopData: [],
     selectedStar: 0,
     text: '',
-<<<<<<< HEAD
     isShowMap: false,
     location: {},
-=======
->>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
     user: {
       username: 'ABC'
     },
@@ -40,6 +39,30 @@ class shop extends Component {
       comment: 'WoWWWWW',
       rate: 3
     },
+    ],
+    tripName: [
+      {
+        id: 7,
+        tripName: "ทริปอะไรไปได้หมด",
+        userData: {
+          id: 5,
+          email: "in-in@hotmail.com",
+          firstName: "Thanapat",
+          lastName: "555555",
+          image: null
+        }
+      },
+      {
+        id: 8,
+        tripName: "ทริปอะไรไปได้หมด",
+        userData: {
+          id: 5,
+          email: "in-in@hotmail.com",
+          firstName: "Thanapat",
+          lastName: "555555",
+          image: null
+        }
+      }
     ]
   }
 
@@ -47,16 +70,12 @@ class shop extends Component {
     const rateTotal = this.state.comments.reduce((prev, rate) => { return prev + rate.rate }, 0)
     this.setState({ rateing: rateTotal / this.state.comments.length })
     console.log("rate total:", rateTotal);
-<<<<<<< HEAD
     this.setState({
       location: {
         latitude: parseFloat(this.props.location.state.shop.location.latitude),
         longitude: parseFloat(this.props.location.state.shop.location.longitude)
       }
     })
-=======
-
->>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
 
     console.log('====================================');
     console.log("Shop props:", this.props.location.state.shop);
@@ -76,13 +95,19 @@ class shop extends Component {
         console.log("Error :", err);
         console.log('====================================');
       })
+
+    const { profile } = this.props
+    if (this.props.profile.length > 0) {
+      this.setState({ isLogin: !this.state.isLogin })
+    }
   }
 
-<<<<<<< HEAD
+
+  _showDialog = () => this.setState({ visibleDialog: true });
+
+  _hideDialog = () => this.setState({ visibleDialog: false, TripNameSelect: '', TripNameSelectId: '' });
+
   componentDisMount() {
-=======
-  componentDisMount(){
->>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
     const rateTotal = this.state.comments.reduce((prev, rate) => { return prev + rate.rate }, 0)
     this.setState({ rateing: rateTotal / this.state.comments.length })
   }
@@ -115,6 +140,11 @@ class shop extends Component {
         }]
       })
     }
+  }
+
+  addToTrip = (tripName, id) => {
+    console.log("tripName", tripName, id);
+    { this._hideDialog }
   }
   render() {
     console.log("location:", this.state.location);
@@ -184,6 +214,13 @@ class shop extends Component {
               </Card.Content>
               <Card.Actions style={{ alignSelf: 'flex-end' }}>
                 <Button
+                  disabled={!this.state.isLogin}
+                  onPress={() => {
+                    this.setState({ visibleDialog: true })
+                  }}>
+                  <Icon size={18} name="bookmark" />  Add to trip
+                   </Button>
+                <Button
                   onPress={() => {
                     this.setState({ isShowMap: true })
                   }}><Icon size={20} name="map-marked-alt" /> MAP</Button>
@@ -229,65 +266,114 @@ class shop extends Component {
                 </Card>
               }
             />
-            <Card
-              disabled={false}
-              style={styles.surface}>
-              <Card.Title
-                left={(props) => <Avatar.Icon {...props} icon="person" />}
-                right={() =>
-                  <StarRating
-                    maxStars={5}
-                    rating={this.state.selectedStar}
-                    disabled={false}
-                    starSize={15}
-                    starStyle={{ marginRight: 10 }}
-                    fullStarColor={'#ffb819'}
-                    selectedStar={(rating) => this.onStarRatingPress(rating)} />}
-                title={this.state.user.username}
-                titleStyle={{
-                  fontSize: 15,
-                }} />
-              <Card.Content>
-                <TextInput
-                  label='Comment'
-                  value={this.state.text}
-                  onChangeText={text => this.setState({ text: text })}
-                />
-                <HelperText
-                  type="error"
-                  visible={(this.state.text.length >= 10) ? true : false}
-                >
-                  {console.log(this.state.text.length)
-                  }
-                  Not length more 70 characters
-                </HelperText>
-                <Button
-                  mode="contained"
-                  onPress={() => {
-                    console.log("Press");
-<<<<<<< HEAD
 
-=======
-                    
->>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
-                    this.onSendComment(this.state.user.username, this.state.text, this.state.selectedStar)
-                  }}>
-                  SEND
-                </Button>
-                <HelperText
-                  type="error"
-                  visible={this.state.RateStarEmpty}
-                >
-                  Plese put some rate score
-                </HelperText>
-              </Card.Content>
-            </Card>
+            {this.state.isLogin ?
+              <Card
+                disabled={false}
+                style={styles.surface}>
+                <Card.Title
+                  left={(props) => <Avatar.Icon {...props} icon="person" />}
+                  right={() =>
+                    <StarRating
+                      maxStars={5}
+                      rating={this.state.selectedStar}
+                      disabled={false}
+                      starSize={15}
+                      starStyle={{ marginRight: 10 }}
+                      fullStarColor={'#ffb819'}
+                      selectedStar={(rating) => this.onStarRatingPress(rating)} />}
+                  title={this.state.user.username}
+                  titleStyle={{
+                    fontSize: 15,
+                  }} />
+                <Card.Content>
+                  <TextInput
+                    label='Comment'
+                    value={this.state.text}
+                    onChangeText={text => this.setState({ text: text })}
+                  />
+                  <HelperText
+                    type="error"
+                    visible={(this.state.text.length >= 10) ? true : false}
+                  >
+                    {console.log(this.state.text.length)
+                    }
+                    Not length more 70 characters
+              </HelperText>
+                  <Button
+                    mode="contained"
+                    onPress={() => {
+                      console.log("Press");
+
+                      this.onSendComment(this.state.user.username, this.state.text, this.state.selectedStar)
+                    }}>
+                    SEND
+              </Button>
+                  <HelperText
+                    type="error"
+                    visible={this.state.RateStarEmpty}
+                  >
+                    Plese put some rate score
+              </HelperText>
+                </Card.Content>
+              </Card>
+              :
+              <Card style={{
+                height: 50,
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Card.Content>
+                  <Button onPress={() => { this.props.history.push('/login') }}>Plese Login To Review</Button>
+                </Card.Content>
+              </Card>
+            }
+
           </ScrollView>
         </View>
+        <Portal>
+          <Dialog
+            visible={this.state.visibleDialog}
+            onDismiss={this._hideDialog}>
+            <Dialog.Title>Select Trip</Dialog.Title>
+            <Dialog.Content>
+              <Drawer.Section>
+                <FlatList
+                  data={this.state.tripName}
+                  renderItem={({ item }) =>
+                    <Drawer.Item
+                      label={item.tripName + item.id}
+                      active={item.id === this.state.TripNameSelectId ? true : false}
+                      onPress={() => {
+                        this.setState({ TripNameSelectId: item.id }),
+                          this.setState({ TripNameSelect: item.tripName }),
+                          this.setState({ refreshing: !this.state.refreshing })
+                      }}
+                    >{console.log(item.id === this.state.TripNameSelectId ? true : false)}</Drawer.Item>
+                  }
+                  refreshing={this.state.refreshing}
+                />
+              </Drawer.Section>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button disabled={this.state.TripNameSelectId !== '' ? false : true}
+                onPress={() => { this.addToTrip(this.state.TripNameSelect, this.state.TripNameSelectId) }}>
+                Yes</Button>
+              <Button onPress={this._hideDialog}>Cancel</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
       </View>
     )
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    profile: state.profile
+  }
+}
+
 
 const mapDispatchToProps = (dispatch) => {
   return {
@@ -297,4 +383,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(null, mapDispatchToProps)(shop)
+export default connect(mapStateToProps, mapDispatchToProps)(shop)

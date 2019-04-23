@@ -13,11 +13,9 @@ import ProfilePage from '../pages/profile'
 import MenuPage from '../components/menu'
 import RegisterPage from '../pages/register'
 import EditProfilePage from '../pages/editProfile'
-<<<<<<< HEAD
+import TripPage from '../pages/trip'
+import TripDataPage from '../pages/tripData'
 
-=======
-import ChangeProfilePage from '../pages/changePassword'
->>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
 
 export default class Router extends React.Component {
   render() {
@@ -34,12 +32,9 @@ export default class Router extends React.Component {
               <Route exact path="/menu" component={MenuPage} />
               <Route exact path="/register" component={RegisterPage} />
               <Route exact path="/editProfile" component={EditProfilePage} />
-<<<<<<< HEAD
-              <Redirect to='/menu' />
-=======
-              <Route exact path="/changePassword" component={ChangeProfilePage} />
-              <Redirect to='/editProfile' />
->>>>>>> 6d1c3bb32eab080d81b72270838da8cbf1d867cc
+              <Route exact path="/Trip" component={TripPage} />
+              <Route exact path="/TripData" component={TripDataPage} />
+              <Redirect to='/login' />
             </Switch>
           </ConnectedRouter>
         </PaperProvider>
