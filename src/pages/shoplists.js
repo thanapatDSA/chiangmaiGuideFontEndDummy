@@ -27,9 +27,26 @@ class shoplists extends Component {
     isLoading: false,
   }
 
+  componentDidMount() {
+    console.log('componentDidMount');
+    this.loadtestData()
+
+  }
+
   UNSAFE_componentWillMount() {
     this.loadShoplist()
+
   }
+
+  loadtestData = async () => {
+    const { profile, ipreducer } = this.props
+    const test = await axios({
+      method: 'get',
+      url: `${this.props.ipreducer.ip}/review/get_all`
+    });
+    console.log('test', test)
+  }
+
 
   loadShoplist = () => {
     axios.get('https://chiangmai.thaimarket.guide/shop'
@@ -37,15 +54,9 @@ class shoplists extends Component {
     )
       .then(response => {
         this.setState({ shoplists: response.data.data, shopFilter: response.data.data })
-        console.log('====================================');
-        console.log("Shop DATA:", this.state.shoplists);
-        console.log('====================================');
         this.setState({ isLoading: true })
       })
       .catch(err => {
-        console.log('====================================');
-        console.log("shop err:", err);
-        console.log('====================================');
         this.setState({ isLoading: true })
       })
   }
@@ -122,8 +133,13 @@ class shoplists extends Component {
         >
           ร้านค้า
       </Button>
+        <Button mode={this.state.active !== 'ร้านอาหาร' ? 'text' : 'contained'}
+          onPress={() => { this.setState({ active: 'ร้านอาหาร', isLoading: false }), this.foodFilter() }}
+        >
+          ร้านอาหาร
+      </Button>
         <Button mode={this.state.active !== 'แฟชั่น' ? 'text' : 'contained'}
-          onPress={() => { this.setState({ active: 'แฟชั่น', isLoading: false }), this.foodFilter() }}
+          onPress={() => { this.setState({ active: 'แฟชั่น', isLoading: false }), this.fashionFilter() }}
         >
           แฟชั่น
       </Button>
@@ -215,5 +231,11 @@ class shoplists extends Component {
   }
 }
 
+const mapStateToProps = (state) => {
+  return {
+    profile: state.profile,
+    ipreducer: state.ipreducer
+  }
+}
 
-export default connect(null, { push })(shoplists)
+export default connect(mapStateToProps, { push })(shoplists)

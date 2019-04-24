@@ -18,10 +18,12 @@ class register extends Component {
   goTologin = () => {
     this.props.history.push('/login')
   }
+  
   registerPress = (email, password, firstname, lastname) => {
+    const { ipreducer } = this.props
     axios({
       method: 'post',
-      url: 'http://34.230.73.139:8888/user/register',
+      url: `${this.props.ipreducer.ip}/user/register`,
       data: {
         email: email,
         password: password,
@@ -107,7 +109,12 @@ class register extends Component {
     )
   }
 }
-
+const mapStateToProps = (state) => {
+  return {
+    profile: state.profile,
+    ipreducer: state.ipreducer
+  }
+}
 const mapDispatchToProps = (dispatch) => {
   return {
     push: location => {
@@ -116,4 +123,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(null, mapDispatchToProps)(register)
+export default connect(mapStateToProps, mapDispatchToProps)(register)

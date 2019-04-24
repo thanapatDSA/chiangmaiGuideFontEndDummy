@@ -34,7 +34,7 @@ export default class Router extends React.Component {
               <Route exact path="/editProfile" component={EditProfilePage} />
               <Route exact path="/Trip" component={TripPage} />
               <Route exact path="/TripData" component={TripDataPage} />
-              <Redirect to='/menu' />
+              <Redirect to='/login' />
             </Switch>
           </ConnectedRouter>
         </PaperProvider>

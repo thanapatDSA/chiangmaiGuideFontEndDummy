@@ -9,6 +9,7 @@ import { push } from 'connected-react-router'
 import axios from 'axios'
 import { thisTypeAnnotation } from '@babel/types';
 import { Link } from 'react-router-native'
+import { ipReducers } from '../reducers/IpAddressReducers';
 
 class trip extends Component {
   state = {
@@ -19,7 +20,8 @@ class trip extends Component {
     editTripName: '',
     newTripName: '',
     tripNameId: '',
-    tripName: []
+    tripName: [],
+    tripDescription: ''
   }
 
 
@@ -34,10 +36,10 @@ class trip extends Component {
   }
 
   loadTripName = () => {
-    const { profile } = this.props
+    const { profile, ipreducer } = this.props
     axios({
       method: 'get',
-      url: `http://34.230.73.139:8888/trip/${this.props.profile[0].id}`,
+      url: `${this.props.ipreducer.ip}/trip/${this.props.profile[0].id}`,
       headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` }
     })
       .then((res) => {
@@ -52,44 +54,69 @@ class trip extends Component {
   }
 
   addNewTrip = () => {
-    const { profile } = this.props
+    const { profile, ipreducer } = this.props
     axios({
       method: 'post',
-      url: `http://34.230.73.139:8888/trip/${this.props.profile[0].id}`,
+      url: `${this.props.ipreducer.ip}/trip/${this.props.profile[0].id}`,
       headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
       data: {
-        tripName: this.state.newTripName
+        tripName: this.state.newTripName,
+        tripDescription: this.state.tripDescription
       }
     })
       .then((res) => {
         console.log("data:", res.data);
+        this.setState({ tripDescription: '' })
         this.setState({ visibleDialog: false });
         this.loadTripName()
       })
       .catch((err) => {
         console.log("error", err);
+        this.setState({ tripDescription: '' })
         this.setState({ visibleDialog: false });
       })
   }
 
   editTripName = (id) => {
-    const { profile } = this.props
+    const { profile, ipreducer } = this.props
     axios({
       method: 'put',
-      url: `http://34.230.73.139:8888/trip/edit/${id}`,
+      url: `${this.props.ipreducer.ip}/trip/edit/${id}`,
       headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
       data: {
-        tripName: this.state.editTripName
+        tripName: this.state.editTripName,
+        tripDescription: this.state.tripDescription
       }
     })
       .then((res) => {
         console.log("data:", res.data);
         this.setState({ visibleDialogEdit: false });
-        this.setState({ tripNameId: '' })
+        this.setState({ tripNameId: '', tripDescription: '' })
         this.loadTripName()
       })
       .catch((err) => {
         console.log("error", err);
+        this.setState({ tripNameId: '', tripDescription: '' })
+        this.setState({ visibleDialogEdit: false });
+      })
+  }
+
+  deleteTrip = (id) => {
+    const { profile, ipreducer } = this.props
+    axios({
+      method: 'delete',
+      url: `${this.props.ipreducer.ip}/trip/delete/${id}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+    })
+      .then((res) => {
+        console.log("delete:", res);
+        this.setState({ visibleDialogEdit: false });
+        this.setState({ tripNameId: '', tripDescription: '' })
+        this.loadTripName()
+      })
+      .catch((err) => {
+        console.log("error", err);
+        this.setState({ tripNameId: '', tripDescription: '' })
         this.setState({ visibleDialogEdit: false });
       })
   }
@@ -108,12 +135,12 @@ class trip extends Component {
   editTripnamePress = (id) => {
     this.setState({ tripNameId: id })
     this.setState({ visibleDialogEdit: true })
-
   }
 
   tripNameAddPress = () => {
     this.setState({ visibleDialog: true })
   }
+
 
   goToLogin = () => {
     const { push } = this.props
@@ -151,6 +178,7 @@ class trip extends Component {
                       <Card >
                         <Card.Title titleStyle={{ fontSize: 18, }}
                           title={item.tripName}
+                          subtitle={item.tripDescription}
                           right={(props) =>
                             <Button onPress={() => { this.editTripnamePress(item.id) }} ><Icon name="edit" size={30} /></Button>}
                           onPress={() => {
@@ -211,6 +239,10 @@ class trip extends Component {
                 label='Trip Name'
                 value={this.state.newTripName}
                 onChangeText={newTripName => this.setState({ newTripName })} />
+              <TextInput
+                label='Description'
+                value={this.state.tripDescription}
+                onChangeText={tripDescription => this.setState({ tripDescription })} />
             </Dialog.Content>
             <Dialog.Actions>
               <Button onPress={() => { this.addNewTrip() }}>Yes</Button>
@@ -222,13 +254,18 @@ class trip extends Component {
           <Dialog
             visible={this.state.visibleDialogEdit}
             onDismiss={this._hideDialogEdit}>
-            <Dialog.Title>Edit Trip Name</Dialog.Title>
+            <Dialog.Title>Edit</Dialog.Title>
             <Dialog.Content>
               <TextInput
-                label='New Trip Name'
+                label='Trip Name'
                 value={this.state.editTripName}
                 onChangeText={editTripName => this.setState({ editTripName })} />
+              <TextInput
+                label='Description'
+                value={this.state.tripDescription}
+                onChangeText={tripDescription => this.setState({ tripDescription })} />
             </Dialog.Content>
+            <Button color="red" mode="contained" onPress={() => { this.deleteTrip(this.state.tripNameId) }} ><Icon name="trash-o" color="white" size={20} /> DELETE </Button>
             <Dialog.Actions>
               <Button onPress={() => { this.editTripName(this.state.tripNameId) }}>Yes</Button>
               <Button onPress={this._hideDialogEdit}>Cancel</Button>
@@ -242,7 +279,8 @@ class trip extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    profile: state.profile
+    profile: state.profile,
+    ipreducer: state.ipreducer
   }
 }
 

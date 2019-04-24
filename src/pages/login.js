@@ -1,32 +1,36 @@
 import React, { Component } from 'react'
-import { Image, StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, YellowBox, View, Alert, TouchableOpacity } from 'react-native';
 import styles from '../utilities/styles'
 import { Header } from '../components/header'
-import { Button, TextInput, HelperText, Avatar, Appbar } from 'react-native-paper'
+import { Button, TextInput, HelperText, Avatar, Appbar, Snackbar } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/AntDesign';
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
 import axios from 'axios'
+
+YellowBox.ignoreWarnings(['Setting a timer']);
 
 class login extends Component {
   state = {
     email: 'in-in@hotmail.com',
     password: '25666',
     pic: 'https://puu.sh/CQUJ1/ac37c354a6.png',
+    visible: false,
   }
+
   UNSAFE_componentWillMount() {
-    const { profile } = this.props
+    const { profile, ipreducer } = this.props
     console.log('====================================');
-    console.log(this.props.profile);
+    console.log(this.props);
     console.log('====================================');
   }
 
   loginPrass = () => {
     console.log('TEST login press');
-
+    const { ipreducer } = this.props
     axios({
       method: 'post',
-      url: 'http://34.230.73.139:8888/auth',
+      url: `${this.props.ipreducer.ip}/auth`,
       data: {
         username: this.state.email,
         password: this.state.password
@@ -34,7 +38,7 @@ class login extends Component {
     })
       .then((res) => {
         this.props.addProfile(res.data.user.id, res.data.user.email, res.data.user.firstName, res.data.user.lastName, res.data.token);
-        this.props.history.push('/menu', { index: 0 })
+        this.props.history.push('/menu', { index: 1 })
 
         console.log(res.data)
       })
@@ -45,8 +49,9 @@ class login extends Component {
   }
 
   loginPrassTest = () => {
+    this.setState(state => ({ visible: !state.visible }))
     // this.props.addProfile("a@b.com", "a", "b", "hatoken");
-    this.props.history.push('/menu', { index: 0 })
+    // this.props.history.push('/menu', { index: 0 })
   }
   goToReg = () => {
     this.props.history.push('/register')
@@ -104,15 +109,30 @@ class login extends Component {
           <Button style={styles.button} mode="contained" onPress={() => this.goToReg()}>
             Register
           </Button>
+          <Snackbar
+            visible={this.state.visible}
+            onDismiss={() => this.setState({ visible: false })}
+            duration={Snackbar.DURATION_LONG}
+            action={{
+              label: 'Undo',
+              onPress: () => {
+                // Do something
+              },
+            }}
+          >
+            Hey there! I'm a Snackbar.
+        </Snackbar>
         </View>
       </View>
     )
   }
 }
 
+
 const mapStateToProps = (state) => {
   return {
-    profile: state.profile
+    profile: state.profile,
+    ipreducer: state.ipreducer
   }
 }
 

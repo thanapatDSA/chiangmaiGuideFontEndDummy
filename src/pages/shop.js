@@ -24,52 +24,20 @@ class shop extends Component {
     text: '',
     isShowMap: false,
     location: {},
-    user: {
-      username: 'ABC'
-    },
+    user: '',
     rateing: 0,
     RateStarEmpty: false,
-    comments: [{
-      name: 'ToyToy',
-      comment: 'AHHHHHHHHHHHHHH',
-      rate: 4
-    },
-    {
-      name: 'Toy2',
-      comment: 'WoWWWWW',
-      rate: 3
-    },
-    ],
-    tripName: [
-      {
-        id: 7,
-        tripName: "ทริปอะไรไปได้หมด",
-        userData: {
-          id: 5,
-          email: "in-in@hotmail.com",
-          firstName: "Thanapat",
-          lastName: "555555",
-          image: null
-        }
-      },
-      {
-        id: 8,
-        tripName: "ทริปอะไรไปได้หมด",
-        userData: {
-          id: 5,
-          email: "in-in@hotmail.com",
-          firstName: "Thanapat",
-          lastName: "555555",
-          image: null
-        }
-      }
-    ]
+    comments: [],
+    tripName: [],
+    isCheckComment: false,
+    idUser: '',
+    visibleEditDialog: false,
+    editReview: '',
+    commentId: '',
+    visibleRemoveDialog: false,
   }
 
   UNSAFE_componentWillMount() {
-    const rateTotal = this.state.comments.reduce((prev, rate) => { return prev + rate.rate }, 0)
-    this.setState({ rateing: rateTotal / this.state.comments.length })
-    console.log("rate total:", rateTotal);
     this.setState({
       location: {
         latitude: parseFloat(this.props.location.state.shop.location.latitude),
@@ -100,6 +68,77 @@ class shop extends Component {
     if (this.props.profile.length > 0) {
       this.setState({ isLogin: !this.state.isLogin })
     }
+
+    this.loadShopReview()
+    this.setState({
+      user: this.props.profile[0].firstname,
+      idUser: this.props.profile[0].id
+    })
+  }
+
+  calStar = () => {
+    this.setState({ rateing: this.state.comments.reduce((prev, rateing) => { return prev + rateing.rateing }, 0) / this.state.comments.length })
+  }
+
+  loadShopReview = () => {
+    const { profile, ipreducer } = this.props
+    axios({
+      method: 'get',
+      url: `${this.props.ipreducer.ip}/review/shopId/${this.props.location.state.shop.id}`,
+    })
+      .then((res) => {
+        this.setState({ comments: res.data })
+        console.log("comments:", this.state.comments);
+        this.calStar()
+      })
+      .catch((err) => {
+        console.log("error", err);
+      })
+  }
+
+
+
+  addReview = (text, rate) => {
+    const { profile, ipreducer } = this.props
+    axios({
+      method: 'post',
+      url: `${this.props.ipreducer.ip}/review/add/${this.props.profile[0].id}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+      data: {
+        shopId: this.props.location.state.shop.id,
+        rateing: rate,
+        comment: text
+      }
+    })
+      .then((res) => {
+        console.log("addReview:", res);
+        this.setState({ text: '' })
+        this.loadShopReview()
+      })
+      .catch((err) => {
+        console.log("error", err);
+      })
+  }
+
+
+
+
+
+
+  loadTripName = () => {
+    const { profile, ipreducer } = this.props
+    axios({
+      method: 'get',
+      url: `${this.props.ipreducer.ip}/trip/${this.props.profile[0].id}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` }
+    })
+      .then((res) => {
+        this.setState({ tripName: res.data })
+        console.log("data:", this.state.tripName);
+      })
+      .catch((err) => {
+        console.log("error", err);
+      })
   }
 
 
@@ -107,10 +146,6 @@ class shop extends Component {
 
   _hideDialog = () => this.setState({ visibleDialog: false, TripNameSelect: '', TripNameSelectId: '' });
 
-  componentDisMount() {
-    const rateTotal = this.state.comments.reduce((prev, rate) => { return prev + rate.rate }, 0)
-    this.setState({ rateing: rateTotal / this.state.comments.length })
-  }
   backToShoplists = () => {
     this.props.history.push('/menu', { index: this.props.location.state.index })
   }
@@ -128,23 +163,106 @@ class shop extends Component {
   onStarRatingPress = (rateing) => {
     this.setState({ selectedStar: rateing })
   }
-  onSendComment = (name, text, rate) => {
+
+
+
+
+  onSendComment = (text, rate) => {
     if (this.state.selectedStar == 0) {
       this.setState({ RateStarEmpty: true })
     } else {
-      this.setState({
-        comments: [...this.state.comments, {
-          name: name,
-          comment: text,
-          rate: rate
-        }]
-      })
+      this.addReview(text, rate)
+      console.log(text, rate);
+
     }
   }
 
-  addToTrip = (tripName, id) => {
-    console.log("tripName", tripName, id);
-    { this._hideDialog }
+
+  editPress = (id, comment) => {
+    this.setState({ commentId: id, editReview: comment, visibleEditDialog: true })
+  }
+
+
+  editReview = () => {
+
+    const { profile, ipreducer } = this.props
+    axios({
+      method: 'put',
+      url: `${this.props.ipreducer.ip}/review/edit/${this.state.commentId}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+      data: {
+        shopId: this.props.location.state.shop.id,
+        rateing: this.state.selectedStar,
+        comment: this.state.editReview
+      }
+    })
+      .then((res) => {
+        console.log("Review:", res);
+        this.setState({ selectedStar: 0, commentId: '', editReview: '' })
+        this.loadShopReview()
+        this.setState({ visibleEditDialog: false })
+      })
+      .catch((err) => {
+        console.log("error", err);
+        this.setState({ selectedStar: 0, commentId: '', editReview: '' })
+        this.setState({ visibleEditDialog: false })
+      })
+
+  }
+
+
+  removePress = (id) => {
+    this.setState({ commentId: id, visibleRemoveDialog: true })
+  }
+
+  removeReview = () => {
+    const { profile, ipreducer } = this.props
+    axios({
+      method: 'delete',
+      url: `${this.props.ipreducer.ip}/review/delete/${this.state.commentId}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+    })
+      .then((res) => {
+        console.log("Review:", res);
+        this.setState({ selectedStar: 0, commentId: '' })
+        this.loadShopReview()
+        this.setState({ visibleRemoveDialog: false, isCheckComment: !this.state.isCheckComment })
+      })
+      .catch((err) => {
+        console.log("error", err);
+        this.setState({ selectedStar: 0, commentId: '' })
+        this.setState({ visibleRemoveDialog: false })
+      })
+  }
+
+
+  _hideDialogEdit = () => this.setState({ visibleEditDialog: false });
+  _hideDialogRemove = () => this.setState({ visibleRemoveDialog: false });
+
+  addToTrip = (shopId, id) => {
+    // console.log("tripName", tripName, id);
+    const { profile, ipreducer } = this.props
+    axios({
+      method: 'post',
+      url: `${this.props.ipreducer.ip}/trip/list/${id}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+      data: {
+        shopId: shopId,
+        shopName: this.props.location.state.shop.lang.th.name,
+        shopCategory: this.props.location.state.shop.category,
+        oreder: id
+      }
+    })
+      .then((res) => {
+        console.log("data:", this.state.tripName);
+        this.setState({ visibleDialog: false, TripNameSelect: '', TripNameSelectId: '' })
+      })
+      .catch((err) => {
+        console.log("error", err);
+        this.setState({ visibleDialog: false, TripNameSelect: '', TripNameSelectId: '' })
+      })
+
+
   }
   render() {
     console.log("location:", this.state.location);
@@ -216,7 +334,8 @@ class shop extends Component {
                 <Button
                   disabled={!this.state.isLogin}
                   onPress={() => {
-                    this.setState({ visibleDialog: true })
+                    this.loadTripName(),
+                      this.setState({ visibleDialog: true })
                   }}>
                   <Icon size={18} name="bookmark" />  Add to trip
                    </Button>
@@ -255,68 +374,103 @@ class shop extends Component {
                   <Card.Title
                     left={(props) => <Avatar.Icon {...props} icon="person" />}
                     right={(props) =>
-                      <StarRating maxStars={5} rating={item.rate} disabled={false} starSize={15} starStyle={{ marginRight: 10 }} fullStarColor={'#ffb819'} />}
-                    title={item.name}
+                      <StarRating maxStars={5} rating={item.rateing} disabled={false} starSize={15} starStyle={{ marginRight: 10 }} fullStarColor={'#ffb819'} />}
+                    title={item.userData.firstName}
                     titleStyle={{
                       fontSize: 15,
                     }} />
                   <Card.Content>
                     <Paragraph>{item.comment}</Paragraph>
                   </Card.Content>
+
+                  {item.userData.id === this.state.idUser ?
+                    <Card.Actions style={{ alignSelf: 'flex-end' }}>
+                      <Button onPress={() => {
+                        this.editPress(item.id, item.comment)
+                      }}>
+                        edit
+                    </Button>
+                      <Button onPress={() => {
+                        this.removePress(item.id)
+                      }}>
+                        remove
+                    </Button >
+                      {this.setState({ isCheckComment: true, selectedStar: item.rateing })}
+                    </Card.Actions>
+
+                    :
+                    <Card.Content></Card.Content>
+
+
+                  }
+
                 </Card>
               }
             />
 
-            {this.state.isLogin ?
-              <Card
-                disabled={false}
-                style={styles.surface}>
-                <Card.Title
-                  left={(props) => <Avatar.Icon {...props} icon="person" />}
-                  right={() =>
-                    <StarRating
-                      maxStars={5}
-                      rating={this.state.selectedStar}
-                      disabled={false}
-                      starSize={15}
-                      starStyle={{ marginRight: 10 }}
-                      fullStarColor={'#ffb819'}
-                      selectedStar={(rating) => this.onStarRatingPress(rating)} />}
-                  title={this.state.user.username}
-                  titleStyle={{
-                    fontSize: 15,
-                  }} />
-                <Card.Content>
-                  <TextInput
-                    label='Comment'
-                    value={this.state.text}
-                    onChangeText={text => this.setState({ text: text })}
-                  />
-                  <HelperText
-                    type="error"
-                    visible={(this.state.text.length >= 10) ? true : false}
-                  >
-                    {console.log(this.state.text.length)
-                    }
-                    Not length more 70 characters
-              </HelperText>
-                  <Button
-                    mode="contained"
-                    onPress={() => {
-                      console.log("Press");
 
-                      this.onSendComment(this.state.user.username, this.state.text, this.state.selectedStar)
-                    }}>
-                    SEND
-              </Button>
-                  <HelperText
-                    type="error"
-                    visible={this.state.RateStarEmpty}
-                  >
-                    Plese put some rate score
+
+            {this.state.isLogin ?
+
+              <View>
+                {!this.state.isCheckComment ?
+                  <Card
+                    disabled={false}
+                    style={styles.surface}>
+                    <Card.Title
+                      left={(props) => <Avatar.Icon {...props} icon="person" />}
+                      right={() =>
+                        <StarRating
+                          maxStars={5}
+                          rating={this.state.selectedStar}
+                          disabled={false}
+                          starSize={15}
+                          starStyle={{ marginRight: 10 }}
+                          fullStarColor={'#ffb819'}
+                          selectedStar={(rating) => this.onStarRatingPress(rating)} />}
+                      title={this.state.user}
+                      titleStyle={{
+                        fontSize: 15,
+                      }} />
+                    <Card.Content>
+                      <TextInput
+                        label='Comment'
+                        value={this.state.text}
+                        onChangeText={text => this.setState({ text: text })}
+                      />
+                      <HelperText
+                        type="error"
+                        visible={(this.state.text.length >= 70) ? true : false}
+                      >
+                        {console.log(this.state.text.length)
+                        }
+                        Not length more 70 characters
               </HelperText>
-                </Card.Content>
-              </Card>
+                      <Button
+                        mode="contained"
+                        onPress={() => {
+                          console.log("Press");
+                          this.onSendComment(this.state.text, this.state.selectedStar)
+                        }}>
+                        SEND
+              </Button>
+                      <HelperText
+                        type="error"
+                        visible={this.state.RateStarEmpty}
+                      >
+                        Plese put some rate score
+              </HelperText>
+                    </Card.Content>
+                  </Card>
+
+
+                  :
+
+                  <View />
+
+
+                }
+              </View>
               :
               <Card style={{
                 height: 50,
@@ -342,7 +496,7 @@ class shop extends Component {
                   data={this.state.tripName}
                   renderItem={({ item }) =>
                     <Drawer.Item
-                      label={item.tripName + item.id}
+                      label={item.tripName}
                       active={item.id === this.state.TripNameSelectId ? true : false}
                       onPress={() => {
                         this.setState({ TripNameSelectId: item.id }),
@@ -357,9 +511,49 @@ class shop extends Component {
             </Dialog.Content>
             <Dialog.Actions>
               <Button disabled={this.state.TripNameSelectId !== '' ? false : true}
-                onPress={() => { this.addToTrip(this.state.TripNameSelect, this.state.TripNameSelectId) }}>
+                onPress={() => { this.addToTrip(this.props.location.state.shop.id, this.state.TripNameSelectId) }}>
                 Yes</Button>
               <Button onPress={this._hideDialog}>Cancel</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+        <Portal>
+          <Dialog
+            visible={this.state.visibleEditDialog}
+            onDismiss={this._hideDialogEdit}>
+            <Dialog.Title>Edit</Dialog.Title>
+            <Dialog.Content>
+              <StarRating
+                maxStars={5}
+                rating={this.state.selectedStar}
+                disabled={false}
+                starSize={30}
+                starStyle={{ marginRight: 5 }}
+                fullStarColor={'#ffb819'}
+                selectedStar={(rating) => this.onStarRatingPress(rating)} />
+              <Text> </Text>
+              <TextInput
+                label='Someting new'
+                value={this.state.editReview}
+                onChangeText={editReview => this.setState({ editReview })} />
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={() => { this.editReview() }}>Yes</Button>
+              <Button onPress={this._hideDialogEdit}>Cancel</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+        <Portal>
+          <Dialog
+            visible={this.state.visibleRemoveDialog}
+            onDismiss={this._hideDialogRemove}>
+            <Dialog.Title>Delete</Dialog.Title>
+            <Dialog.Content>
+              <Paragraph>Are you sure to delete this review</Paragraph>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={() => { this.removeReview() }}>Yes</Button>
+              <Button onPress={this._hideDialogRemove}>Cancel</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>
@@ -370,7 +564,8 @@ class shop extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    profile: state.profile
+    profile: state.profile,
+    ipreducer: state.ipreducer
   }
 }
 

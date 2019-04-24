@@ -14,10 +14,10 @@ class editProfile extends Component {
     visible: false,
   }
   editPress = (firstname, lastname) => {
-    const { profile } = this.props
+    const { profile, ipreducer } = this.props
     axios({
       method: 'put',
-      url: `http://34.230.73.139:8888/user/edit/${this.props.profile[0].id}`,
+      url: `${this.props.ipreducer.ip}/user/edit/${this.props.profile[0].id}`,
       headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
       data: {
         firstName: firstname,
@@ -89,7 +89,8 @@ class editProfile extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    profile: state.profile
+    profile: state.profile,
+    ipreducer: state.ipreducer
   }
 }
 

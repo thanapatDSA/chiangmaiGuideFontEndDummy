@@ -32,10 +32,10 @@ class tripData extends Component {
     }
 
     loadTripData = () => {
-        const { profile } = this.props
+        const { profile, ipreducer } = this.props
         axios({
             method: 'get',
-            url: `http://34.230.73.139:8888/trip/list/${this.props.history.location.state.item.id}`,
+            url: `${this.props.ipreducer.ip}/trip/list/${this.props.history.location.state.item.id}`,
             headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` }
         })
             .then((res) => {
@@ -67,10 +67,10 @@ class tripData extends Component {
     }
 
     editTripData = () => {
-        const { profile } = this.props
+        const { profile, ipreducer } = this.props
         axios({
             method: 'put',
-            url: `http://34.230.73.139:8888/trip/list/edit/${this.props.history.location.state.item.id}`,
+            url: `${this.props.ipreducer.ip}/trip/list/edit/${this.props.history.location.state.item.id}`,
             headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
             data: this.state.output
         })
@@ -85,10 +85,10 @@ class tripData extends Component {
     }
 
     removeTripData = (id) => {
-        const { profile } = this.props
+        const { profile, ipreducer } = this.props
         axios({
             method: 'delete',
-            url: `http://34.230.73.139:8888/trip/delete/list/${id}`,
+            url: `${this.props.ipreducer.ip}/trip/delete/list/${id}`,
             headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
         })
             .then((res) => {
@@ -122,8 +122,8 @@ class tripData extends Component {
                     {!this.state.isShowRemove ?
                         <Card.Title
                             left={(props) => <Avatar.Text  {...props} size={45} label={index + 1} />}
-                            title={item.id}
-                            subtitle={item.oreder}
+                            title={item.shopName}
+                            subtitle={item.shopCategory}
                             titleStyle={{
                                 fontSize: 15,
                             }} />
@@ -132,8 +132,8 @@ class tripData extends Component {
                             left={(props) => <Avatar.Text  {...props} size={45} label={index + 1} />}
                             right={(props) =>
                                 <Button icon="delete" color="red" onPress={() => { this.deletePress(item.id) }} />}
-                            title={item.id}
-                            subtitle={item.oreder}
+                            title={item.shopName}
+                            subtitle={item.shopCategory}
                             titleStyle={{
                                 fontSize: 15,
                             }} />
@@ -212,7 +212,7 @@ class tripData extends Component {
                         <Card.Title
                             title={this.state.trip.tripName} />
                         <Card.Content>
-                            <Paragraph>รายละเอียด</Paragraph>
+                            <Paragraph>{this.props.history.location.state.item.tripDescription}</Paragraph>
                         </Card.Content>
                         {!this.state.isShowEdit ?
                             <Card.Actions style={{ alignSelf: 'flex-end' }}>
@@ -284,7 +284,8 @@ class tripData extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        profile: state.profile
+        profile: state.profile,
+        ipreducer: state.ipreducer
     }
 }
 

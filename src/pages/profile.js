@@ -28,16 +28,16 @@ class profile extends Component {
     if (this.props.profile.length > 0) {
       this.setState({ isLogin: !this.state.isLogin })
       this.loadProfile()
-    } 
+    }
   }
 
   loadProfile = () => {
-    const { profile } = this.props
+    const { profile, ipreducer } = this.props
     console.log("email:", this.props.profile[0].email);
 
     axios({
       method: 'get',
-      url: `http://34.230.73.139:8888/user/${this.props.profile[0].email}`,
+      url: `${this.props.ipreducer.ip}/user/${this.props.profile[0].email}`,
       headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` }
     })
       .then((res) => {
@@ -129,7 +129,8 @@ class profile extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    profile: state.profile
+    profile: state.profile,
+    ipreducer: state.ipreducer
   }
 }
 
