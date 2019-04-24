@@ -6,46 +6,91 @@ import { Button, Drawer, Avatar, Card, Title, TextInput, Dialog, Portal } from '
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
-
+import axios from 'axios'
+import { thisTypeAnnotation } from '@babel/types';
+import { Link } from 'react-router-native'
 
 class trip extends Component {
   state = {
+    refreshing: false,
     isLogin: false,
     visibleDialog: false,
     visibleDialogEdit: false,
     editTripName: '',
     newTripName: '',
-    tripName: [
-      {
-        id: 7,
-        tripName: "ทริปอะไรไปได้หมด",
-        userData: {
-          id: 5,
-          email: "in-in@hotmail.com",
-          firstName: "Thanapat",
-          lastName: "555555",
-          image: null
-        }
-      },
-      {
-        id: 8,
-        tripName: "ทริปอะไรไปได้หมด",
-        userData: {
-          id: 5,
-          email: "in-in@hotmail.com",
-          firstName: "Thanapat",
-          lastName: "555555",
-          image: null
-        }
-      }
-    ]
+    tripNameId: '',
+    tripName: []
   }
 
+
   UNSAFE_componentWillMount() {
+    console.log("trip props", this.props)
     const { profile } = this.props
     if (this.props.profile.length > 0) {
       this.setState({ isLogin: !this.state.isLogin })
     }
+    this.loadTripName()
+  }
+
+  loadTripName = () => {
+    const { profile } = this.props
+    axios({
+      method: 'get',
+      url: `http://34.230.73.139:8888/trip/${this.props.profile[0].id}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` }
+    })
+      .then((res) => {
+        this.setState({ tripName: res.data })
+        console.log("data:", this.state.tripName);
+        this.setState({ refreshing: !this.state.refreshing })
+
+      })
+      .catch((err) => {
+        console.log("error", err);
+      })
+  }
+
+  addNewTrip = () => {
+    const { profile } = this.props
+    axios({
+      method: 'post',
+      url: `http://34.230.73.139:8888/trip/${this.props.profile[0].id}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+      data: {
+        tripName: this.state.newTripName
+      }
+    })
+      .then((res) => {
+        console.log("data:", res.data);
+        this.setState({ visibleDialog: false });
+        this.loadTripName()
+      })
+      .catch((err) => {
+        console.log("error", err);
+        this.setState({ visibleDialog: false });
+      })
+  }
+
+  editTripName = (id) => {
+    const { profile } = this.props
+    axios({
+      method: 'put',
+      url: `http://34.230.73.139:8888/trip/edit/${id}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+      data: {
+        tripName: this.state.editTripName
+      }
+    })
+      .then((res) => {
+        console.log("data:", res.data);
+        this.setState({ visibleDialogEdit: false });
+        this.setState({ tripNameId: '' })
+        this.loadTripName()
+      })
+      .catch((err) => {
+        console.log("error", err);
+        this.setState({ visibleDialogEdit: false });
+      })
   }
 
   _showDialog = () => this.setState({ visibleDialog: true });
@@ -56,12 +101,13 @@ class trip extends Component {
 
   _hideDialogEdit = () => this.setState({ visibleDialogEdit: false });
 
-  tripNamePress = (tripName) => {
-    const { push } = this.props
-    push('/TripData', { tripName: tripName })
+  tripNamePress = (trip) => {
+    this.props.history.push('/TripData', { tripData: trip })
   }
-  editTripnamePress = () => {
+  editTripnamePress = (id) => {
+    this.setState({ tripNameId: id })
     this.setState({ visibleDialogEdit: true })
+
   }
 
   tripNameAddPress = () => {
@@ -91,22 +137,31 @@ class trip extends Component {
                 renderItem={({ item }) =>
                   <TouchableOpacity
                     style={{
-                      marginVertical: 3
-                    }}
-                    onPress={() => { this.tripNamePress(item.tripName) }}
-                  >
-                    <Card >
-                      <Card.Title titleStyle={{ fontSize: 18, }}
-                        title={item.tripName}
-                        right={(props) =>
-                          <Button onPress={() => { this.editTripnamePress() }} ><Icon name="edit" size={30} /></Button>}
-                        onPress={() => {
-                          this.tripNamePress(item.tripName)
-                        }}
-                      />
-                    </Card>
+                      marginVertical: 3,
+                    }}>
+                    <Link
+                      to={{
+                        pathname: "/TripData",
+                        search: "?sort=name",
+                        hash: "#the-hash",
+                        state: { item: item }
+                      }}
+                    >
+                      <Card >
+                        <Card.Title titleStyle={{ fontSize: 18, }}
+                          title={item.tripName}
+                          right={(props) =>
+                            <Button onPress={() => { this.editTripnamePress(item.id) }} ><Icon name="edit" size={30} /></Button>}
+                          onPress={() => {
+                            this.tripNamePress(item.tripName)
+                          }}
+                        />
+                      </Card>
+
+                    </Link>
                   </TouchableOpacity>
                 }
+                refreshing={this.state.refreshing}
               />
               <TouchableOpacity
                 style={{
@@ -157,7 +212,7 @@ class trip extends Component {
                 onChangeText={newTripName => this.setState({ newTripName })} />
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={this._hideDialog}>Yes</Button>
+              <Button onPress={() => { this.addNewTrip() }}>Yes</Button>
               <Button onPress={this._hideDialog}>Cancel</Button>
             </Dialog.Actions>
           </Dialog>
@@ -174,7 +229,7 @@ class trip extends Component {
                 onChangeText={editTripName => this.setState({ editTripName })} />
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={this._hideDialogEdit}>Yes</Button>
+              <Button onPress={() => { this.editTripName(this.state.tripNameId) }}>Yes</Button>
               <Button onPress={this._hideDialogEdit}>Cancel</Button>
             </Dialog.Actions>
           </Dialog>

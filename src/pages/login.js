@@ -10,7 +10,7 @@ import axios from 'axios'
 
 class login extends Component {
   state = {
-    email: 'in-in@hotmail.com',
+    email: 'in-in5@hotmail.com',
     password: '25666',
     pic: 'https://puu.sh/CQUJ1/ac37c354a6.png',
   }
@@ -33,7 +33,7 @@ class login extends Component {
       }
     })
       .then((res) => {
-        this.props.addProfile(res.data.user.email, res.data.user.firstName, res.data.user.lastName, res.data.token);
+        this.props.addProfile(res.data.user.id, res.data.user.email, res.data.user.firstName, res.data.user.lastName, res.data.token);
         this.props.history.push('/menu', { index: 0 })
 
         console.log(res.data)
@@ -45,7 +45,7 @@ class login extends Component {
   }
 
   loginPrassTest = () => {
-    this.props.addProfile("a@b.com", "a", "b", "hatoken");
+    // this.props.addProfile("a@b.com", "a", "b", "hatoken");
     this.props.history.push('/menu', { index: 0 })
   }
   goToReg = () => {
@@ -118,9 +118,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addProfile: (email, firstname, lastname, token) => {
+    addProfile: (id, email, firstname, lastname, token) => {
       dispatch({
         type: 'ADD_PROFILE',
+        id: id,
         email: email,
         firstname: firstname,
         lastname: lastname,

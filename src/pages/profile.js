@@ -11,9 +11,9 @@ import axios from 'axios'
 class profile extends Component {
   state = {
     isLogin: false,
-    firstName: 'Thanapat',
-    lastName: 'DSA',
-    email: 'in-ni-in@gafafs.xxx',
+    firstName: '',
+    lastName: '',
+    email: '',
     pic: 'https://www.orthocaremedical.com/wp-content/uploads/person-icon.png'
   }
   UNSAFE_componentWillMount() {
@@ -21,8 +21,8 @@ class profile extends Component {
     const { profile } = this.props
     console.log('====================================');
     // console.log(this.props.profile[0]);
-    console.log("email:",this.props.profile[0].email);
-    console.log("email:",this.props.profile[0].token);
+    console.log("email:", this.props.profile[0].email);
+    console.log("email:", this.props.profile[0].token);
     console.log('====================================');
     if (this.props.profile.length > 0) {
       this.setState({ isLogin: !this.state.isLogin })
@@ -31,7 +31,7 @@ class profile extends Component {
 
   loadProfile = () => {
     const { profile } = this.props
-    console.log("email:",this.props.profile[0].email);
+    console.log("email:", this.props.profile[0].email);
 
     axios({
       method: 'get',
@@ -39,12 +39,11 @@ class profile extends Component {
       headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` }
     })
       .then((res) => {
-        console.log("res:",res);
+        this.setState({ email: res.data.email, firstName: res.data.firstName, lastName: res.data.lastName })
       })
       .catch((err) => {
-        console.log("error",err);
+        console.log("error", err);
       })
-
   }
 
   logoutPress = () => {
@@ -54,10 +53,10 @@ class profile extends Component {
   }
   editProfilePress = () => {
     const { profile } = this.props
-    this.props.editProfile(this.props.profile[0].email, "Frist", "Last", "KenKenHo")
-    // this.props.push('/editProfile')
+    // this.props.editProfile(this.props.profile[0].email, "Frist", "Last", "KenKenHo")
+    this.props.push('/editProfile')
     console.log('====================================');
-    console.log(this.props.profile);
+    // console.log(this.props.profile);
     console.log('====================================');
   }
 

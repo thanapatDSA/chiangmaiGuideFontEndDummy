@@ -2,6 +2,7 @@ function profileReducer(state = {}, action) {
   switch (action.type) {
     case 'ADD_PROFILE':
       return {
+        id: action.id,
         email: action.email,
         firstname: action.firstname,
         lastname: action.lastname,

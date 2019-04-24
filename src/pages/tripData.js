@@ -6,6 +6,7 @@ import DraggableFlatList from 'react-native-draggable-flatlist'
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios'
 
 class tripData extends Component {
 
@@ -16,87 +17,93 @@ class tripData extends Component {
         isShowRemove: false,
         tripCancel: [],
         output: [],
-        tripData: [
-            {
-                id: 9,
-                shopId: "5ca8e1dab488447ebb07b7c5",
-                oreder: 1,
-                trip: {
-                    id: 7,
-                    tripName: "ทริปอะไรไปได้หมด",
-                    userData: {
-                        id: 5,
-                        email: "in-in@hotmail.com",
-                        firstName: "Thanapat",
-                        lastName: "555555",
-                        image: null
-                    }
+        tripData: [],
+        trip: {},
+        tripDataId: '',
+        shopData: [],
+    }
+
+    UNSAFE_componentWillMount() {
+        console.log("location", this.props.history.location.state.item)
+        this.setState({ trip: this.props.history.location.state.item })
+        console.log("Trip", this.state.trip);
+
+        this.loadTripData()
+    }
+
+    loadTripData = () => {
+        const { profile } = this.props
+        axios({
+            method: 'get',
+            url: `http://34.230.73.139:8888/trip/list/${this.props.history.location.state.item.id}`,
+            headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` }
+        })
+            .then((res) => {
+                const dataRes = res.data
+                this.setState({ tripData: res.data })
+                this.setState({ shopData: [] })
+                for (let index = 0; index < dataRes.length; index++) {
+                    console.log("res Data Index:", dataRes[index]);
+                    axios({
+                        method: 'get',
+                        url: `https://chiangmai.thaimarket.guide/shop/${dataRes[index].shopId}`
+                    })
+                        .then((shopRes) => {
+                            this.state.shopData.push(
+                                {
+                                    id: dataRes[index].id,
+                                    data: shopRes.data.data
+                                }
+                            )
+                        })
                 }
-            },
-            {
-                id: 10,
-                shopId: "5ca8e1dab488447ebb07b7c5",
-                oreder: 3,
-                trip: {
-                    id: 7,
-                    tripName: "ทริปอะไรไปได้หมด",
-                    userData: {
-                        id: 5,
-                        email: "in-in@hotmail.com",
-                        firstName: "Thanapat",
-                        lastName: "555555",
-                        image: null
-                    }
-                }
-            },
-            {
-                id: 8,
-                shopId: "5ca8e1dab488447ebb07b7c5",
-                oreder: 4,
-                trip: {
-                    id: 7,
-                    tripName: "ทริปอะไรไปได้หมด",
-                    userData: {
-                        id: 5,
-                        email: "in-in@hotmail.com",
-                        firstName: "Thanapat",
-                        lastName: "555555",
-                        image: null
-                    }
-                }
-            },
-            {
-                id: 12,
-                shopId: "5ca8e1dab488447ebb07b7c5",
-                oreder: 5,
-                trip:
-                {
-                    id: 7,
-                    tripName: "ทริปอะไรไปได้หมด",
-                    userData: {
-                        id: 5,
-                        email: "in-in@hotmail.com",
-                        firstName: "Thanapat",
-                        lastName: "555555",
-                        image: null
-                    }
-                }
-            }, {
-                id: 11,
-                shopId: "5ca8e1dab488447ebb07b7c5",
-                oreder: 10,
-                trip: {
-                    id: 7,
-                    tripName: "ทริปอะไรไปได้หมด",
-                    userData: {
-                        id: 5,
-                        email: "in-in@hotmail.com",
-                        firstName: "Thanapat",
-                        lastName: "555555",
-                        image: null
-                    }
-                }
-            }]
+                console.log('====================================');
+                console.log("shop data:", this.state.shopData);
+                console.log('====================================');
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
+
+    editTripData = () => {
+        const { profile } = this.props
+        axios({
+            method: 'put',
+            url: `http://34.230.73.139:8888/trip/list/edit/${this.props.history.location.state.item.id}`,
+            headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+            data: this.state.output
+        })
+            .then((res) => {
+                console.log('====================================');
+                console.log("res", res);
+                console.log('====================================');
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
+
+    removeTripData = (id) => {
+        const { profile } = this.props
+        axios({
+            method: 'delete',
+            url: `http://34.230.73.139:8888/trip/delete/list/${id}`,
+            headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+        })
+            .then((res) => {
+                console.log('====================================');
+                console.log("res", res);
+                console.log('====================================');
+                this.setState({ tripDataId: '' })
+                this.setState({ visibleDialog: false })
+                this.loadTripData()
+            })
+            .catch((err) => {
+                console.log(err);
+                this.setState({ tripDataId: '' })
+                this.setState({ visibleDialog: false })
+            })
     }
 
     renderItem = ({ item, index, move, moveEnd, isActive }) => {
@@ -124,7 +131,7 @@ class tripData extends Component {
                         <Card.Title
                             left={(props) => <Avatar.Text  {...props} size={45} label={index + 1} />}
                             right={(props) =>
-                                <Button icon="delete" color="red" onPress={() => { this.deletePress() }} />}
+                                <Button icon="delete" color="red" onPress={() => { this.deletePress(item.id) }} />}
                             title={item.id}
                             subtitle={item.oreder}
                             titleStyle={{
@@ -140,8 +147,9 @@ class tripData extends Component {
 
     _hideDialog = () => this.setState({ visibleDialog: false });
 
-    deletePress = () => {
+    deletePress = (id) => {
         console.log("DEL");
+        this.setState({ tripDataId: id })
         this.setState({ visibleDialog: true })
     }
 
@@ -153,15 +161,18 @@ class tripData extends Component {
     cancelEditPress = () => {
         this.setState({ tripData: this.state.tripCancel })
         this.setState({ isShowEdit: !this.state.isShowEdit })
+        this.setState({ isShowRemove: !this.state.isShowRemove })
     }
 
     editPress = () => {
         this.setState({ tripCancel: this.state.tripData })
         this.setState({ isShowEdit: !this.state.isShowEdit })
+        this.setState({ isShowRemove: !this.state.isShowRemove })
     }
 
     savePress = () => {
         this.setState({ isShowEdit: !this.state.isShowEdit })
+        this.setState({ isShowRemove: !this.state.isShowRemove })
         this.setState({ output: [] })
         this.state.tripData.map((item, index) => {
             this.state.output.push({
@@ -171,7 +182,8 @@ class tripData extends Component {
             )
         }
         )
-        console.log("output:", this.state.output);
+        console.log("output:", this.state.output)
+        this.editTripData()
     }
     tripDataAdd = () => {
         this.props.history.push('/menu', { index: 0 })
@@ -181,6 +193,7 @@ class tripData extends Component {
         console.log('====================================');
         console.log("Show remove", this.state.isShowRemove);
         console.log('====================================');
+        console.log("location", this.props)
         return (
             <View style={styles.container} >
                 <View style={styles.header}>
@@ -196,7 +209,7 @@ class tripData extends Component {
                 <View style={styles.body}>
                     <Card style={styles.surface}>
                         <Card.Title
-                            title={"ไปไหรได้หมด"} />
+                            title={this.state.trip.tripName} />
                         <Card.Content>
                             <Paragraph>รายละเอียด</Paragraph>
                         </Card.Content>
@@ -205,12 +218,6 @@ class tripData extends Component {
                                 <Button onPress={() => { this.editPress() }}>
                                     Edit
                                 </Button>
-                                {!this.state.isShowRemove ?
-                                    <Button onPress={() => { this.removePress() }}>
-                                        remove
-                                </Button> : <Button onPress={() => { this.removePress() }}>
-                                        remove Cancel
-                                </Button>}
                             </Card.Actions>
                             :
                             <Card.Actions style={{ alignSelf: 'flex-end' }}>
@@ -264,7 +271,7 @@ class tripData extends Component {
                             <Paragraph>Are you sure to delete this Shop</Paragraph>
                         </Dialog.Content>
                         <Dialog.Actions>
-                            <Button onPress={this._hideDialog}>Yes</Button>
+                            <Button onPress={() => { this.removeTripData(this.state.tripDataId) }}>Yes</Button>
                             <Button onPress={this._hideDialog}>Cancel</Button>
                         </Dialog.Actions>
                     </Dialog>

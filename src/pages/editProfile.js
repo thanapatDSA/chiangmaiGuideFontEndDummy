@@ -1,18 +1,36 @@
 import React, { Component } from 'react'
 import { Image, StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import styles from '../utilities/styles'
-import { Button, TextInput, HelperText, Avatar, Appbar, Card, Drawer } from 'react-native-paper'
+import { Button, TextInput, HelperText, Avatar, Appbar, Card, Drawe, Snackbar } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/AntDesign';
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
+import axios from 'axios'
 
 class editProfile extends Component {
   state = {
     firstname: '',
-    lastname: ''
+    lastname: '',
+    visible: false,
   }
   editPress = (firstname, lastname) => {
-    console.log(firstname, lastname)
+    const { profile } = this.props
+    axios({
+      method: 'put',
+      url: `http://34.230.73.139:8888/user/edit/${this.props.profile[0].id}`,
+      headers: { 'Authorization': `Bearer ${this.props.profile[0].token}` },
+      data: {
+        firstName: firstname,
+        lastName: lastname
+      }
+    })
+      .then(() => {
+        this.backToProfile()
+      })
+      .catch((err) => {
+        this.setState({ visible: true })
+        console.log(err)
+      })
 
   }
   backToProfile = () => {
@@ -52,8 +70,26 @@ class editProfile extends Component {
           </Button>
           </ScrollView>
         </View>
+        <Snackbar
+          visible={this.state.visible}
+          onDismiss={() => this.setState({ visible: false })}
+          action={{
+            label: 'Undo',
+            onPress: () => {
+              this.setState({ visible: false })
+            },
+          }}
+        >
+          Error to edit profile
+        </Snackbar>
       </View>
     )
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    profile: state.profile
   }
 }
 
@@ -65,4 +101,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(null, mapDispatchToProps)(editProfile)
+export default connect(mapStateToProps, mapDispatchToProps)(editProfile)

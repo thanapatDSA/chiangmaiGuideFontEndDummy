@@ -5,6 +5,7 @@ import { Button, TextInput, HelperText, Avatar, Appbar } from 'react-native-pape
 import Icon from 'react-native-vector-icons/AntDesign';
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
+import axios from 'axios'
 
 class register extends Component {
   state = {
@@ -18,10 +19,23 @@ class register extends Component {
     this.props.history.push('/login')
   }
   registerPress = (email, password, firstname, lastname) => {
-    console.log('====================================');
-    console.log("Register Press", email, password, firstname, lastname);
-    console.log('====================================');
-    this.props.history.push('/login')
+    axios({
+      method: 'post',
+      url: 'http://34.230.73.139:8888/user/register',
+      data: {
+        email: email,
+        password: password,
+        firstName: firstname,
+        lastName: lastname
+      }
+    })
+      .then((res) => {
+        console.log(res);
+        this.props.history.push('/login')
+      })
+      .catch((error) => {
+        console.log(error);
+      })
   }
   render() {
     return (
