@@ -32,9 +32,9 @@ export default class Router extends React.Component {
               <Route exact path="/menu" component={MenuPage} />
               <Route exact path="/register" component={RegisterPage} />
               <Route exact path="/editProfile" component={EditProfilePage} />
-              {/* <Route exact path="/Trip" component={TripPage} /> */}
+              <Route exact path="/Trip" component={TripPage} />
               <Route exact path="/TripData" component={TripDataPage} />
-              <Redirect to='/login' />
+              <Redirect to='/menu' />
             </Switch>
           </ConnectedRouter>
         </PaperProvider>

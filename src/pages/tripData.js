@@ -159,7 +159,8 @@ class tripData extends Component {
     }
 
     cancelEditPress = () => {
-        this.setState({ tripData: this.state.tripCancel })
+        // this.setState({ tripData: this.state.tripCancel })
+        this.loadTripData()
         this.setState({ isShowEdit: !this.state.isShowEdit })
         this.setState({ isShowRemove: !this.state.isShowRemove })
     }

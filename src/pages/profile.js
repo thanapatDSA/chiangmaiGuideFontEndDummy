@@ -17,16 +17,18 @@ class profile extends Component {
     pic: 'https://www.orthocaremedical.com/wp-content/uploads/person-icon.png'
   }
   UNSAFE_componentWillMount() {
-    this.loadProfile()
-    const { profile } = this.props
-    console.log('====================================');
-    // console.log(this.props.profile[0]);
-    console.log("email:", this.props.profile[0].email);
-    console.log("email:", this.props.profile[0].token);
-    console.log('====================================');
+
+    // const { profile } = this.props
+    // console.log('====================================');
+    // // console.log(this.props.profile[0]);
+    // console.log("email:", this.props.profile[0].email);
+    // console.log("email:", this.props.profile[0].token);
+    // console.log('====================================');
+
     if (this.props.profile.length > 0) {
       this.setState({ isLogin: !this.state.isLogin })
-    }
+      this.loadProfile()
+    } 
   }
 
   loadProfile = () => {

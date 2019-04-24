@@ -28,8 +28,9 @@ class trip extends Component {
     const { profile } = this.props
     if (this.props.profile.length > 0) {
       this.setState({ isLogin: !this.state.isLogin })
+      this.loadTripName()
     }
-    this.loadTripName()
+
   }
 
   loadTripName = () => {

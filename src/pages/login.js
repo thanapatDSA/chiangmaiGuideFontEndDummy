@@ -10,7 +10,7 @@ import axios from 'axios'
 
 class login extends Component {
   state = {
-    email: 'in-in5@hotmail.com',
+    email: 'in-in@hotmail.com',
     password: '25666',
     pic: 'https://puu.sh/CQUJ1/ac37c354a6.png',
   }
